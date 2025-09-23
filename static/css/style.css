@@ -1,0 +1,121 @@
+/* style.css */
+
+/* --- 全局样式 --- */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #282828;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #f0f0f0;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 游戏容器 --- */
+.game-container {
+    background-color: #3a3a3a;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    margin-bottom: 25px;
+}
+
+canvas {
+    display: block;
+    background-color: #323232;
+    border-radius: 4px;
+}
+
+/* --- 控制区域 --- */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px;
+    align-items: center;
+}
+
+.difficulty-select,
+.ingame-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+.difficulty-select span {
+    font-weight: bold;
+    color: #c0c0c0;
+    margin-right: 5px;
+    align-self: center;
+}
+
+/* --- 按钮样式 --- */
+button {
+    background-color: #588e8b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    min-width: 100px;
+}
+
+button:hover {
+    background-color: #68a09d;
+    transform: translateY(-2px);
+}
+
+button:active {
+    background-color: #4a7572;
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 信息面板 --- */
+.info {
+    margin-top: 25px;
+    padding: 12px 20px;
+    background-color: #3a3a3a;
+    border-radius: 5px;
+    color: #a0a0a0;
+    font-size: 0.95em;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 响应式调整 --- */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2em;
+    }
+    .controls {
+        max-width: 90%;
+    }
+    button {
+        flex-grow: 1;
+        min-width: unset;
+    }
+    .difficulty-select span {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+}
