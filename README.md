@@ -12,34 +12,71 @@
 
 * **图像识别**：支持上传图片，利用OpenCV库识别图片中的管道谜题并自动求解。
 
+
 ### **安装与运行**
 
 本应用包含一个 Python 后端和一个纯前端界面，你需要安装相应的 Python 依赖并运行 Flask 服务器，可自行部署在任何支持 Python 的环境中。
 
 #### **先决条件**
 
-* Python 3.12 或更高版本
+  * Python 3.12 或更高版本
+  * `uv` 包管理器 (建议使用，因其速度快)
 
-* `uv` 包管理器 (建议使用，因其速度快)
+-----
+
+
+
+#### **系统依赖 (重要)**
+
+本项目的图像识别功能依赖于 `OpenCV` 库。`OpenCV` 不仅需要通过 `uv` 或 `pip` 安装，还需要操作系统提供图形处理相关的底层共享库。
+
+在某些最小化安装的系统（如部分 Docker 镜像或云服务器）上，这些库可能没有预装。如果你在运行时遇到类似下面的错误：
+`ImportError: libGL.so.1: cannot open shared object file: No such file or directory`
+
+这说明你需要手动安装缺失的系统依赖。以下是一些常见 Linux 发行版的安装命令：
+
+  * **对于 Debian/Ubuntu 系统:**
+
+    ```bash
+    sudo apt update && sudo apt install libgl1-mesa-glx
+    ```
+
+  * **对于 Fedora/CentOS/RHEL 系统:**
+
+    ```bash
+    sudo dnf install mesa-libGL
+    ```
+
+  * **对于 Arch Linux 系统:**
+
+    ```bash
+    sudo pacman -S mesa
+    ```
+
+安装完成后，再继续后续步骤。
+
+
+
+-----
 
 #### **步骤**
 
-1. **安装依赖**：
-   确保你已安装 `uv`。在项目根目录下，运行以下命令安装所有必需的 Python 库：
+1.  **安装依赖**：
+    确保你已安装 `uv` 并且处理好了上述系统依赖。在项目根目录下，运行以下命令安装所有必需的 Python 库：
 
-```
-uv sync
-uv run python -m ensurepip
-```
+    ```bash
+    uv sync
+    uv run python -m ensurepip
+    ```
 
-2. **启动服务器**：
-运行以下命令来启动 Flask 应用：
+2.  **启动服务器**：
+    运行以下命令来启动 Flask 应用：
 
-```
-uv run app.py
-```
+    ```bash
+    uv run app.py
+    ```
 
-服务器将在 `http://127.0.0.1:5000` 上启动。
+    服务器将在 `http://120.0.0.1:5000` 上启动。
 
 ### **使用说明**
 
