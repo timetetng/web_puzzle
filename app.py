@@ -121,3 +121,5 @@ def upload_image():
 
 if __name__ == '__main__':
     app.run(debug=True)
+# 生产环境使用且对公网开放则改为：
+#   app.run(debug=False, host='0.0.0.0')

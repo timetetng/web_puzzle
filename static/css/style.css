@@ -119,3 +119,64 @@ button:active {
         margin-bottom: 5px;
     }
 }
+.footer {
+    width: 100%;
+    margin-top: 40px; /* 增加与上方内容的距离 */
+    padding-top: 20px; /* 在顶部增加内边距 */
+    border-top: 1px solid #444; /* 添加一条微妙的分割线，区分内容区域 */
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    flex-wrap: wrap; /* 在小屏幕上允许换行 */
+    gap: 15px 30px; /* 设置行间距和列间距 */
+}
+
+.footer a {
+    color: #a0a0a0; /* 默认文字颜色 */
+    font-size: 0.9em;
+    text-decoration: none;
+    display: flex; /* 让图标和文字可以在内部对齐 */
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: color 0.3s ease, background-color 0.3s ease; /* 平滑过渡效果 */
+}
+
+.footer a:hover {
+    color: #e0e0e0; /* 悬停时文字变亮 */
+    background-color: rgba(255, 255, 255, 0.05); /* 添加一个非常微妙的背景高亮 */
+}
+
+.footer i {
+    margin-right: 8px; /* 图标和文字的间距 */
+    font-size: 1.2em; /* 图标稍微大一点，更醒目 */
+    color: #c0c0c0; /* 让图标颜色比文字稍亮 */
+    transition: color 0.3s ease; /* 图标颜色也加入过渡 */
+}
+
+.footer a:hover i {
+    color: #588e8b; /* 悬停时，图标变为你的主题色 */
+}
+
+/* 使用伪元素添加一个优雅的垂直分隔符 */
+.footer a:not(:last-child)::after {
+    content: '|';
+    margin-left: 30px; /* 分隔符与左边元素的距离 */
+    color: #666;
+    font-weight: 100;
+}
+
+/* 响应式调整：当屏幕宽度小于600px时 */
+@media (max-width: 600px) {
+    .footer {
+        flex-direction: column; /* 将布局变为垂直方向 */
+        gap: 15px; /* 调整垂直间距 */
+        border-top: none; /* 在移动端移除顶部分割线，更简洁 */
+    }
+
+    /* 在垂直布局时移除分隔符 */
+    .footer a:not(:last-child)::after {
+        content: '';
+        margin-left: 0;
+    }
+}
