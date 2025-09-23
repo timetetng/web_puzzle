@@ -28,19 +28,15 @@
    确保你已安装 `uv`。在项目根目录下，运行以下命令安装所有必需的 Python 库：
 
 ```
-
 uv sync
 uv run python -m ensurepip
-
 ```
 
 2. **启动服务器**：
 运行以下命令来启动 Flask 应用：
 
 ```
-
 uv run app.py
-
 ```
 
 服务器将在 `http://127.0.0.1:5000` 上启动。
