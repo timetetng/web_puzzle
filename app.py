@@ -69,6 +69,29 @@ def get_new_puzzle():
         "solution_grid": serialize_grid(solution_grid)
     })
 
+# ## 新增后端路由 ##
+@app.route('/api/new_custom_puzzle', methods=['POST'])
+def get_new_custom_puzzle():
+    """根据用户提供的形状生成新谜题"""
+    data = request.json
+    shape = data.get('shape')
+
+    if not shape or not isinstance(shape, list) or not all(isinstance(row, list) for row in shape):
+        return jsonify({"error": "无效的形状数据"}), 400
+
+    if not any('x' in row for row in shape):
+        return jsonify({"error": "自定义形状必须至少包含一个石板"}), 400
+        
+    shuffled_grid, solution_grid = puzzle_generator.generate_puzzle_from_shape(shape)
+
+    if shuffled_grid is None:
+        return jsonify({"error": "无法为给定形状生成可解的谜题。请尝试其他形状。"}), 500
+
+    return jsonify({
+        "shuffled_grid": serialize_grid(shuffled_grid),
+        "solution_grid": serialize_grid(solution_grid)
+    })
+
 
 @app.route('/api/solve', methods=['POST'])
 def solve_current_puzzle():
@@ -120,6 +143,6 @@ def upload_image():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
 # 生产环境使用且对公网开放则改为：
-#   app.run(debug=False, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')

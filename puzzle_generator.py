@@ -112,6 +112,40 @@ def _generate_solved_board(width, height, shape):
 
     return None
 
+# ## 新增函数 ##
+def generate_puzzle_from_shape(shape):
+    """
+    在给定的形状上生成一个谜题。
+    """
+    if not shape or not shape[0]:
+        return None, None
+
+    height = len(shape)
+    width = len(shape[0])
+
+    solution_grid = _generate_solved_board(width, height, shape)
+
+    if solution_grid is None:
+        return None, None
+
+    flat_tiles = [tile for row in solution_grid for tile in row if tile is not None]
+    
+    # 检查是否有石板可供洗牌
+    if not flat_tiles:
+        return None, None
+        
+    random.shuffle(flat_tiles)
+
+    shuffled_grid = [[None for _ in range(width)] for _ in range(height)]
+    i = 0
+    for r in range(height):
+        for c in range(width):
+            if shape[r][c] == 'x':
+                shuffled_grid[r][c] = flat_tiles[i]
+                i += 1
+
+    return shuffled_grid, solution_grid
+
 
 def generate_random_puzzle(width, height):
     """

@@ -180,3 +180,73 @@ button:active {
         margin-left: 0;
     }
 }
+
+#customization-ui {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #3a3a3a;
+    border-radius: 8px;
+    text-align: center;
+    width: 100%;
+    max-width: 500px; /* 与 .controls 保持一致 */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#customization-ui h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #f0f0f0;
+}
+
+#customization-ui .custom-inputs,
+#customization-ui .custom-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#customization-ui label {
+    font-weight: bold;
+}
+
+#customization-ui input[type="number"] {
+    width: 60px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #282828;
+    color: #e0e0e0;
+    text-align: center;
+    font-size: 1em;
+}
+
+#customization-ui .custom-actions p {
+    width: 100%;
+    margin: 0 0 5px 0;
+    color: #c0c0c0;
+    font-size: 0.9em;
+}
+
+#customization-ui .custom-actions {
+    flex-direction: column;
+}
+
+/* 为生成和取消按钮设置不同颜色以区分 */
+#generateCustomBtn {
+    background-color: #4CAF50; /* 绿色 */
+}
+#generateCustomBtn:hover {
+    background-color: #5cb85c;
+}
+
+#cancelCustomBtn {
+    background-color: #d9534f; /* 红色 */
+}
+#cancelCustomBtn:hover {
+    background-color: #c9302c;
+}
