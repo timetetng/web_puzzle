@@ -51,44 +51,24 @@ h1 {
     width: 100%;
 }
 
-/* --- 游戏容器与计时器 --- */
 .game-container {
     background-color: #3a3a3a;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
     padding: 10px;
 
-    /* ▼▼▼ 修改开始 ▼▼▼ */
-    /* 将 width: fit-content 替换为 display: inline-block */
-    /* 这会让容器的宽度由其内部的块级元素(canvas)决定 */
-    display: inline-block;
+    /* ▼▼▼ 核心修复方案 ▼▼▼ */
+    /* 1. 使用 table 布局模型 */
+    display: table;
     
-    /* 确保在flex布局中对齐正常 */
-    vertical-align: top; 
-    /* ▲▲▲ 修改结束 ▲▲▲ */
-}
-
-canvas {
-    display: block;
-    background-color: #323232;
-    border-radius: 4px;
-}
-
-#timed-info {
-    color: #f0f0f0;
-    font-size: 1.5em;
-    font-family: 'monospace';
-    text-align: center;
-    padding: 10px;
-    background-color: rgba(0,0,0,0.3);
-    border-radius: 5px 5px 0 0;
-
-    /* ▼▼▼ 新增代码 ▼▼▼ */
-    /* 让信息栏宽度强制等于其父容器的宽度 */
-    width: 100%;
-    /* 确保 padding 不会额外增加宽度，而是包含在100%宽度内 */
-    box-sizing: border-box; 
-    /* ▲▲▲ 新增代码 ▲▲▲ */
+    /* 2. 设置一个极小宽度，强制表格布局去收缩包裹内部的“硬”内容（canvas），
+          而不是“软”内容（文本）。canvas的实际宽度会把它撑开到正确尺寸。*/
+    width: 1px; 
+    
+    /* 3. 因为 display:table 不再是 flex 的直接子元素，
+          可能需要用 margin:auto 来确保其在父容器中水平居中。*/
+    margin-left: auto;
+    margin-right: auto;
 }
 /* --- 信息面板与退出按钮 --- */
 .info {
