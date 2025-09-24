@@ -57,7 +57,15 @@ h1 {
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
     padding: 10px;
-    width: fit-content;
+
+    /* ▼▼▼ 修改开始 ▼▼▼ */
+    /* 将 width: fit-content 替换为 display: inline-block */
+    /* 这会让容器的宽度由其内部的块级元素(canvas)决定 */
+    display: inline-block;
+    
+    /* 确保在flex布局中对齐正常 */
+    vertical-align: top; 
+    /* ▲▲▲ 修改结束 ▲▲▲ */
 }
 
 canvas {
@@ -74,35 +82,14 @@ canvas {
     padding: 10px;
     background-color: rgba(0,0,0,0.3);
     border-radius: 5px 5px 0 0;
-}
 
-/* --- 控制区域 --- */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    /* ▼▼▼ 新增代码 ▼▼▼ */
+    /* 让信息栏宽度强制等于其父容器的宽度 */
     width: 100%;
-    max-width: 560px; /* 限制控制区的最大宽度 */
-    align-items: center;
+    /* 确保 padding 不会额外增加宽度，而是包含在100%宽度内 */
+    box-sizing: border-box; 
+    /* ▲▲▲ 新增代码 ▲▲▲ */
 }
-
-.difficulty-select,
-.ingame-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    width: 100%;
-}
-
-.difficulty-select span {
-    font-weight: bold;
-    color: #c0c0c0;
-    width: 100%;
-    text-align: center;
-    margin-bottom: 5px;
-}
-
 /* --- 信息面板与退出按钮 --- */
 .info {
     width: 100%;

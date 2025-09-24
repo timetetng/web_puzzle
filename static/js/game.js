@@ -1,5 +1,3 @@
-// --- 标记：由AI修正 (V7 - 完整最终版) ---
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 常量定义 ---
     const sleep = ms => new Promise(res => setTimeout(res, ms));
@@ -203,12 +201,34 @@ document.addEventListener('DOMContentLoaded', () => {
     function showModeSelection(){gameArea.style.display='none';modeSelection.style.display='block';gameMode=null;if(timerInterval)clearInterval(timerInterval);
         boardState=null;drawBoard()}
     function resetPuzzleState(){if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null}activeAnimations=[];puzzleJustSolved=!1}
-    function setupGameUIForMode(mode){gameMode=mode;modeSelection.style.display='none';gameArea.style.display='flex';
-        const iT=mode==='timed';classicControls.style.display=iT?'none':'flex';timedControls.style.display=iT?'flex':'none';
-        timedInfo.style.display=iT?'block':'none';hideCustomizationUI();playAgainBtn.style.display='none';resetPuzzleState();
-        if(mode==='classic'){infoPanel.textContent='经典模式：正在为您生成默认3x3谜题...';fetchNewPuzzle(3,3)}
-        else{infoPanel.textContent='计时挑战：请选择难度，准备倒计时！';boardState=null;drawBoard()}}
-    async function fetchCustomPuzzle(shape){infoPanel.textContent='正在根据自定义形状生成谜题...';isAnimating=!0;hideCustomizationUI();
+    function setupGameUIForMode(mode) {
+            gameMode = mode;
+            modeSelection.style.display = 'none';
+            gameArea.style.display = 'flex';
+            const iT = mode === 'timed';
+            classicControls.style.display = iT ? 'none' : 'flex';
+            timedControls.style.display = iT ? 'flex' : 'none';
+            timedInfo.style.display = iT ? 'block' : 'none';
+            hideCustomizationUI();
+            playAgainBtn.style.display = 'none';
+            resetPuzzleState();
+
+            if (mode === 'classic') {
+                infoPanel.textContent = '经典模式：正在为您生成默认3x3谜题...';
+                fetchNewPuzzle(3, 3);
+            } else { // 'timed' 模式
+                infoPanel.textContent = '计时挑战：请选择难度，准备倒计时！';
+                boardState = null;
+                drawBoard();
+                
+                // --- 核心修复逻辑：重置计时器和挑战状态 ---
+                if (timerInterval) clearInterval(timerInterval); // 清除任何残留的计时器
+                challengeState = {}; // 清空上一次挑战的所有数据
+                timerEl.textContent = formatTime(0); // 将计时器显示重置为 00:00.000
+                puzzleCounterEl.textContent = ''; // 清空关卡计数器
+            }
+        }
+        async function fetchCustomPuzzle(shape){infoPanel.textContent='正在根据自定义形状生成谜题...';isAnimating=!0;hideCustomizationUI();
         playAgainBtn.style.display='none';resetPuzzleState();try{const r=await fetch('/api/new_custom_puzzle',{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({shape})});if(!r.ok){const eD=await r.json();throw new Error(eD.error||`Server error: ${r.statusText}`)}
         const d=await r.json();boardState=d.shuffled_grid;solutionState=d.solution_grid;initialBoardState=JSON.parse(JSON.stringify(d.shuffled_grid));
