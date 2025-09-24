@@ -152,7 +152,7 @@ def generate_random_puzzle(width, height):
     生成一个随机的、保证有单一连通解的谜题。
     """
     max_tiles = width * height
-    min_tiles = int(max_tiles * 0.6)
+    min_tiles = int(max_tiles * 0.7)
     num_tiles = random.randint(min_tiles, max_tiles)
 
     solution_grid = None

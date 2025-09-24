@@ -1,5 +1,3 @@
-/* style.css */
-
 /* --- 全局样式 --- */
 body {
     font-family: 'Arial', sans-serif;
@@ -8,7 +6,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     min-height: 100vh;
     margin: 0;
     padding: 20px;
@@ -22,13 +19,45 @@ h1 {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 游戏容器 --- */
+/* --- 模式选择 --- */
+#mode-selection {
+    text-align: center;
+    background-color: #3a3a3a;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+#mode-selection h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+.mode-btn {
+    font-size: 1.2em;
+    padding: 15px 30px;
+    margin: 0 10px;
+}
+#leaderboard-btn {
+    margin-top: 20px;
+    background-color: #6c757d;
+}
+
+
+/* --- 游戏主区域垂直布局 --- */
+#game-area {
+    display: flex;
+    flex-direction: column; /* 核心：改为垂直方向 */
+    align-items: center;   /* 核心：所有子元素水平居中 */
+    gap: 25px;             /* 设置子元素之间的垂直间距 */
+    width: 100%;
+}
+
+/* --- 游戏容器与计时器 --- */
 .game-container {
     background-color: #3a3a3a;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
     padding: 10px;
-    margin-bottom: 25px;
+    width: fit-content;
 }
 
 canvas {
@@ -37,13 +66,23 @@ canvas {
     border-radius: 4px;
 }
 
+#timed-info {
+    color: #f0f0f0;
+    font-size: 1.5em;
+    font-family: 'monospace';
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 5px 5px 0 0;
+}
+
 /* --- 控制区域 --- */
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
     width: 100%;
-    max-width: 500px;
+    max-width: 560px; /* 限制控制区的最大宽度 */
     align-items: center;
 }
 
@@ -59,11 +98,34 @@ canvas {
 .difficulty-select span {
     font-weight: bold;
     color: #c0c0c0;
-    margin-right: 5px;
-    align-self: center;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
 }
 
-/* --- 按钮样式 --- */
+/* --- 信息面板与退出按钮 --- */
+.info {
+    width: 100%;
+    max-width: 560px;
+    padding: 12px 20px;
+    background-color: #3a3a3a;
+    border-radius: 5px;
+    color: #d0d0d0;
+    font-size: 1.1em;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+}
+
+.exit-btn {
+    width: 100%;
+    max-width: 560px;
+    padding: 12px;
+    font-size: 1.1em;
+    background-color: #7a6361;
+}
+
+/* --- 通用按钮样式 --- */
 button {
     background-color: #588e8b;
     color: white;
@@ -77,110 +139,17 @@ button {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     min-width: 100px;
 }
-
 button:hover {
     background-color: #68a09d;
     transform: translateY(-2px);
 }
-
 button:active {
     background-color: #4a7572;
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 信息面板 --- */
-.info {
-    margin-top: 25px;
-    padding: 12px 20px;
-    background-color: #3a3a3a;
-    border-radius: 5px;
-    color: #a0a0a0;
-    font-size: 0.95em;
-    text-align: center;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-/* --- 响应式调整 --- */
-@media (max-width: 600px) {
-    h1 {
-        font-size: 2em;
-    }
-    .controls {
-        max-width: 90%;
-    }
-    button {
-        flex-grow: 1;
-        min-width: unset;
-    }
-    .difficulty-select span {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-}
-.footer {
-    width: 100%;
-    margin-top: 40px; /* 增加与上方内容的距离 */
-    padding-top: 20px; /* 在顶部增加内边距 */
-    border-top: 1px solid #444; /* 添加一条微妙的分割线，区分内容区域 */
-    display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    flex-wrap: wrap; /* 在小屏幕上允许换行 */
-    gap: 15px 30px; /* 设置行间距和列间距 */
-}
-
-.footer a {
-    color: #a0a0a0; /* 默认文字颜色 */
-    font-size: 0.9em;
-    text-decoration: none;
-    display: flex; /* 让图标和文字可以在内部对齐 */
-    align-items: center;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: color 0.3s ease, background-color 0.3s ease; /* 平滑过渡效果 */
-}
-
-.footer a:hover {
-    color: #e0e0e0; /* 悬停时文字变亮 */
-    background-color: rgba(255, 255, 255, 0.05); /* 添加一个非常微妙的背景高亮 */
-}
-
-.footer i {
-    margin-right: 8px; /* 图标和文字的间距 */
-    font-size: 1.2em; /* 图标稍微大一点，更醒目 */
-    color: #c0c0c0; /* 让图标颜色比文字稍亮 */
-    transition: color 0.3s ease; /* 图标颜色也加入过渡 */
-}
-
-.footer a:hover i {
-    color: #588e8b; /* 悬停时，图标变为你的主题色 */
-}
-
-/* 使用伪元素添加一个优雅的垂直分隔符 */
-.footer a:not(:last-child)::after {
-    content: '|';
-    margin-left: 30px; /* 分隔符与左边元素的距离 */
-    color: #666;
-    font-weight: 100;
-}
-
-/* 响应式调整：当屏幕宽度小于600px时 */
-@media (max-width: 600px) {
-    .footer {
-        flex-direction: column; /* 将布局变为垂直方向 */
-        gap: 15px; /* 调整垂直间距 */
-        border-top: none; /* 在移动端移除顶部分割线，更简洁 */
-    }
-
-    /* 在垂直布局时移除分隔符 */
-    .footer a:not(:last-child)::after {
-        content: '';
-        margin-left: 0;
-    }
-}
-
+/* --- 自定义UI样式 --- */
 #customization-ui {
     margin-top: 20px;
     padding: 20px;
@@ -188,65 +157,87 @@ button:active {
     border-radius: 8px;
     text-align: center;
     width: 100%;
-    max-width: 500px; /* 与 .controls 保持一致 */
+    max-width: 560px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
+#customization-ui h3 { margin-top: 0; margin-bottom: 5px; color: #f0f0f0; }
+#customization-ui .custom-inputs, #customization-ui .custom-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+#customization-ui label { font-weight: bold; }
+#customization-ui input[type="number"] { width: 60px; padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #282828; color: #e0e0e0; text-align: center; font-size: 1em; }
+#customization-ui .custom-actions p { width: 100%; margin: 0 0 5px 0; color: #c0c0c0; font-size: 0.9em; }
+#customization-ui .custom-actions { flex-direction: column; }
+#generateCustomBtn { background-color: #4CAF50; }
+#generateCustomBtn:hover { background-color: #5cb85c; }
+#cancelCustomBtn { background-color: #d9534f; }
+#cancelCustomBtn:hover { background-color: #c9302c; }
 
-#customization-ui h3 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    color: #f0f0f0;
+/* --- 弹窗 (Modal) --- */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+.modal-content { background-color: #3a3a3a; padding: 25px; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); width: 90%; max-width: 500px; text-align: center; position: relative; }
+.modal-content.large { max-width: 600px; }
+.close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-btn:hover { color: #fff; }
+#results-details hr { border-color: #555; }
+#results-details p { margin: 10px 0; font-size: 1.1em; }
+.results-submission { margin: 20px 0; display: flex; gap: 10px; }
+#username-input { flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #555; background-color: #282828; color: #e0e0e0; font-size: 1em; }
+.results-actions { display: flex; justify-content: center; gap: 15px; }
+
+/* --- 排行榜样式 --- */
+.leaderboard-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+.leaderboard-controls select { padding: 8px; font-size: 1em; background-color: #588e8b; color: white; border: none; border-radius: 5px; }
+#leaderboard-display ol { list-style: none; padding: 0; text-align: left; }
+#leaderboard-display li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #444; font-size: 1.1em; }
+#leaderboard-display li:nth-child(1) { font-weight: bold; color: #ffd700; }
+#leaderboard-display li:nth-child(2) { color: #c0c0c0; }
+#leaderboard-display li:nth-child(3) { color: #cd7f32; }
+#leaderboard-display li span:last-child { font-family: 'monospace'; }
+
+/* --- 页脚 --- */
+.footer { width: 100%; margin-top: auto; padding-top: 20px; border-top: 1px solid #444; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px 30px; }
+.footer a { color: #a0a0a0; font-size: 0.9em; text-decoration: none; display: flex; align-items: center; padding: 5px 10px; border-radius: 5px; transition: color 0.3s ease, background-color 0.3s ease; }
+.footer a:hover { color: #e0e0e0; background-color: rgba(255, 255, 255, 0.05); }
+.footer i { margin-right: 8px; font-size: 1.2em; color: #c0c0c0; transition: color 0.3s ease; }
+.footer a:hover i { color: #588e8b; }
+
+
+/* --- 响应式调整 --- */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+    button {
+        flex-grow: 1;
+        min-width: unset;
+    }
+    .footer {
+        flex-direction: column;
+        gap: 15px;
+        border-top: none;
+    }
 }
-
-#customization-ui .custom-inputs,
-#customization-ui .custom-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-#customization-ui label {
-    font-weight: bold;
-}
-
-#customization-ui input[type="number"] {
-    width: 60px;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #555;
-    background-color: #282828;
+/* --- 排行榜个人排名显示样式 --- */
+.user-rank-info {
+    border-top: 1px solid #555;
+    margin-top: 20px;
+    padding-top: 15px;
+    font-size: 1.1em;
     color: #e0e0e0;
-    text-align: center;
-    font-size: 1em;
 }
 
-#customization-ui .custom-actions p {
-    width: 100%;
-    margin: 0 0 5px 0;
-    color: #c0c0c0;
-    font-size: 0.9em;
+.user-rank-info b {
+    color: #65e065; /* 使用连接线的颜色来高亮排名 */
 }
 
-#customization-ui .custom-actions {
-    flex-direction: column;
-}
-
-/* 为生成和取消按钮设置不同颜色以区分 */
-#generateCustomBtn {
-    background-color: #4CAF50; /* 绿色 */
-}
-#generateCustomBtn:hover {
-    background-color: #5cb85c;
-}
-
-#cancelCustomBtn {
-    background-color: #d9534f; /* 红色 */
-}
-#cancelCustomBtn:hover {
-    background-color: #c9302c;
+/* 优化前三名奖牌的显示效果 */
+#leaderboard-display li span:first-child {
+    display: flex;
+    align-items: center;
 }

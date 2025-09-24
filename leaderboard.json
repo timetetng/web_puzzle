@@ -1,0 +1,40 @@
+{
+    "3x3": {
+        "single": [
+            {
+                "username": "Xingjian",
+                "time": 5242
+            },
+            {
+                "username": "Xingjian",
+                "time": 5242
+            },
+            {
+                "username": "Xingjian",
+                "time": 5242
+            },
+            {
+                "username": "Xingjian",
+                "time": 5242
+            }
+        ],
+        "average": [
+            {
+                "username": "Xingjian",
+                "time": 8489.333333333334
+            },
+            {
+                "username": "Xingjian",
+                "time": 8489.333333333334
+            },
+            {
+                "username": "Xingjian",
+                "time": 8489.333333333334
+            },
+            {
+                "username": "Xingjian",
+                "time": 8489.333333333334
+            }
+        ]
+    }
+}

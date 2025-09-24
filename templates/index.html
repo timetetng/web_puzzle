@@ -6,33 +6,72 @@
     <title>石板谜题</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>石板谜题</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
     <h1>石板谜题</h1>
-    <div class="game-container">
-        <canvas id="gameCanvas"></canvas>
+
+    <div id="mode-selection">
+        <h2>选择模式</h2>
+        <button id="classic-mode-btn" class="mode-btn">经典模式</button>
+        <button id="timed-mode-btn" class="mode-btn">计时挑战</button>
+        <button id="leaderboard-btn">查看排行榜</button>
     </div>
-    <div class="controls">
-        <div class="difficulty-select">
-            <span>新游戏:</span>
-            <button class="difficulty-btn" data-size="3x3">新手 3x3</button>
-            <button class="difficulty-btn" data-size="4x4">简单 4x4</button>
-            <button class="difficulty-btn" data-size="5x5">中等 5x5</button>
-            <button class="difficulty-btn" data-size="7x7">困难 7x7</button>
-            <button id="customBtn">自定义</button>
+
+    <div id="game-area" style="display: none;">
+        
+        <div class="game-container">
+            <div id="timed-info" style="display: none;">
+                <span id="puzzle-counter"></span> | <span id="timer">00:00.000</span>
+            </div>
+            <canvas id="gameCanvas"></canvas>
         </div>
-        <div class="ingame-actions">
-            <button id="retryBtn">重试</button>
-            <button id="solveBtn">自动求解</button>
-            <button id="playAgainBtn" style="display: none;">再来一次</button>
-            <button id="uploadBtn">从图片导入</button>
-            <input type="file" id="imageUploader" accept="image/*" style="display: none;">
+
+        <div id="classic-controls" class="controls" style="display: none;">
+            <div class="difficulty-select">
+                <span>新游戏:</span>
+                <button class="difficulty-btn" data-size="3x3">新手 3x3</button>
+                <button class="difficulty-btn" data-size="4x4">简单 4x4</button>
+                <button class="difficulty-btn" data-size="5x5">中等 5x5</button>
+                <button class="difficulty-btn" data-size="7x7">困难 7x7</button>
+                <button id="customBtn">自定义</button>
+            </div>
+            <div class="ingame-actions">
+                <button id="retryBtnClassic">重试</button>
+                <button id="solveBtn">自动求解</button>
+                <button id="playAgainBtn" style="display: none;">再来一次</button>
+                <button id="uploadBtn">从图片导入</button>
+                <input type="file" id="imageUploader" accept="image/*" style="display: none;">
+            </div>
         </div>
+
+        <div id="timed-controls" class="controls" style="display: none;">
+            <div class="difficulty-select">
+                <span>选择挑战:</span>
+                <button class="difficulty-btn" data-size="3x3">新手 3x3</button>
+                <button class="difficulty-btn" data-size="4x4">简单 4x4</button>
+                <button class="difficulty-btn" data-size="5x5">中等 5x5</button>
+                <button class="difficulty-btn" data-size="7x7">困难 7x7</button>
+            </div>
+            <div class="ingame-actions">
+                 <button id="retryBtnTimed">重试当前关卡</button>
+            </div>
+        </div>
+
+        <div class="info" id="infoPanel"></div>
+        
+        <button id="exit-game-btn" class="exit-btn">返回主菜单</button>
     </div>
 
     <div id="customization-ui" style="display: none;">
-        <h3>自定义棋盘形状</h3>
-        <div class="custom-inputs">
+         <h3>自定义棋盘形状</h3>
+         <div class="custom-inputs">
             <label for="customWidth">宽度:</label>
             <input type="number" id="customWidth" value="5" min="2" max="15">
             <label for="customHeight">高度:</label>
@@ -46,19 +85,57 @@
         </div>
     </div>
 
-    <div class="info" id="infoPanel">
-        正在加载谜题...
+
+    <div id="results-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>挑战完成！</h2>
+            <div id="results-details">
+                <p>第一关用时: <span id="time-1"></span></p>
+                <p>第二关用时: <span id="time-2"></span></p>
+                <p>第三关用时: <span id="time-3"></span></p>
+                <hr>
+                <p><b>平均用时: <span id="time-avg"></span></b></p>
+                <p><b>总用时: <span id="time-total"></span></b></p>
+            </div>
+            <div class="results-submission">
+                <input type="text" id="username-input" placeholder="输入你的昵称">
+                <button id="submit-score-btn">提交成绩</button>
+            </div>
+            <div class="results-actions">
+                <button id="results-play-again-btn">再来一次</button>
+                <button id="results-exit-btn">退出</button>
+            </div>
+        </div>
+    </div>
+    <div id="leaderboard-modal" class="modal" style="display: none;">
+        <div class="modal-content large">
+            <span class="close-btn" id="close-leaderboard-btn">&times;</span>
+            <h2>排行榜</h2>
+            <div class="leaderboard-controls">
+                <select id="leaderboard-difficulty-select">
+                    <option value="3x3">新手 3x3</option>
+                    <option value="4x4">简单 4x4</option>
+                    <option value="5x5">中等 5x5</option>
+                    <option value="7x7">困难 7x7</option>
+                </select>
+                <select id="leaderboard-type-select">
+                    <option value="single">单次最快</option>
+                    <option value="average">平均最快</option>
+                </select>
+            </div>
+            <div id="leaderboard-display"></div>
+        </div>
     </div>
 
     <footer class="footer">
         <a href="https://github.com/timetetng" target="_blank">
-            <i class="fas fa-user-circle"></i> Created by timetetng
+             <i class="fas fa-user-circle"></i> Created by timetetng
         </a>
         <a href="https://github.com/timetetng/web_puzzle.git" target="_blank">
             <i class="fab fa-github"></i> GitHub Repository
         </a>
     </footer>
 
-    <script src="/static/js/game.js"></script>
+    <script src="/static/js/game.js?v=final"></script>
 </body>
 </html>

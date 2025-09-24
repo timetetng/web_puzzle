@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 import os
 import uuid
+import json
+import sqlite3 # 导入sqlite3
 
 # Import game logic modules
 import puzzle_generator
@@ -11,10 +13,39 @@ from game_logic import Board, Tile
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
+DATABASE_FILE = 'leaderboard.db' # 使用数据库文件
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# --- 数据库初始化 ---
+def init_db():
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        cursor = conn.cursor()
+        # 创建一个表来存储每个用户在每个难度下的最好成绩
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS scores (
+                difficulty TEXT NOT NULL,
+                username TEXT NOT NULL,
+                best_single_time REAL,
+                best_average_time REAL,
+                PRIMARY KEY (difficulty, username)
+            )
+        ''')
+        conn.commit()
+# --- 工具函数 ---
+def get_leaderboard():
+    """读取排行榜数据"""
+    if not os.path.exists(LEADERBOARD_FILE):
+        return {}
+    with open(LEADERBOARD_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
+def save_leaderboard(data):
+    """保存排行榜数据"""
+    with open(LEADERBOARD_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4)
+
+# (保留 calculate_swaps 和 serialize_grid 函数)
 def calculate_swaps(initial_grid, final_grid):
     """Calculates the sequence of swaps to transform initial_grid to final_grid."""
     rows, cols = len(initial_grid), len(initial_grid[0])
@@ -47,13 +78,13 @@ def serialize_grid(grid):
     if not grid:
         return None
     return [[tile.connections if tile else None for tile in row] for row in grid]
-
+# --- 路由 ---
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
+# (保留 /api/new_puzzle, /api/new_custom_puzzle, /api/solve, /api/upload_image)
 @app.route('/api/new_puzzle', methods=['GET'])
 def get_new_puzzle():
     try:
@@ -69,7 +100,6 @@ def get_new_puzzle():
         "solution_grid": serialize_grid(solution_grid)
     })
 
-# ## 新增后端路由 ##
 @app.route('/api/new_custom_puzzle', methods=['POST'])
 def get_new_custom_puzzle():
     """根据用户提供的形状生成新谜题"""
@@ -91,8 +121,7 @@ def get_new_custom_puzzle():
         "shuffled_grid": serialize_grid(shuffled_grid),
         "solution_grid": serialize_grid(solution_grid)
     })
-
-
+    
 @app.route('/api/solve', methods=['POST'])
 def solve_current_puzzle():
     data = request.json
@@ -101,7 +130,6 @@ def solve_current_puzzle():
         return jsonify({"error": "Invalid data provided"}), 400
     swaps = calculate_swaps(current_grid_data, solution_grid_data)
     return jsonify({"swaps": swaps})
-
 
 @app.route('/api/upload_image', methods=['POST'])
 def upload_image():
@@ -140,9 +168,131 @@ def upload_image():
         })
 
     return jsonify({"error": "An unknown error occurred"}), 500
+# ## 新增: 计时挑战 API ##
+@app.route('/api/challenge/start', methods=['POST'])
+def start_challenge():
+    """为计时挑战生成一组谜题"""
+    data = request.json
+    width, height = data.get('width'), data.get('height')
+    
+    puzzles = []
+    for _ in range(3):
+        shuffled, solution = puzzle_generator.generate_random_puzzle(width, height)
+        if shuffled is None:
+            return jsonify({"error": "Failed to generate a full challenge set"}), 500
+        puzzles.append({
+            "shuffled_grid": serialize_grid(shuffled),
+            "solution_grid": serialize_grid(solution)
+        })
+    return jsonify({"puzzles": puzzles})
+
+# ## 新增: 排行榜 API ##
+@app.route('/api/leaderboard', methods=['GET'])
+def get_leaderboard_route():
+    difficulty = request.args.get('difficulty')
+    score_type = request.args.get('type') # 'single' or 'average'
+    username = request.args.get('username')
+
+    if not difficulty or not score_type:
+        return jsonify({"error": "Missing parameters"}), 400
+
+    time_column = "best_single_time" if score_type == 'single' else "best_average_time"
+
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        conn.row_factory = sqlite3.Row # 让查询结果可以像字典一样访问
+        cursor = conn.cursor()
+
+        # 1. 获取前100名
+        query_top_100 = f"""
+            SELECT username, {time_column} as time FROM scores
+            WHERE difficulty = ? AND {time_column} IS NOT NULL
+            ORDER BY {time_column} ASC
+            LIMIT 100
+        """
+        cursor.execute(query_top_100, (difficulty,))
+        top_scores = [dict(row) for row in cursor.fetchall()]
+
+        # 2. 如果提供了用户名，获取该用户的排名
+        user_rank_info = None
+        if username:
+            # 使用窗口函数 RANK() 来计算排名
+            query_user_rank = f"""
+                SELECT rank, time FROM (
+                    SELECT username, {time_column} as time, RANK() OVER (ORDER BY {time_column} ASC) as rank
+                    FROM scores
+                    WHERE difficulty = ? AND {time_column} IS NOT NULL
+                )
+                WHERE username = ?
+            """
+            cursor.execute(query_user_rank, (difficulty, username))
+            rank_row = cursor.fetchone()
+            if rank_row:
+                user_rank_info = dict(rank_row)
+
+    return jsonify({
+        "top_scores": top_scores,
+        "user_rank_info": user_rank_info
+    })
+
+@app.route('/api/leaderboard/submit', methods=['POST'])
+def submit_score():
+    data = request.json
+    difficulty = data.get('difficulty')
+    username = data.get('username', '匿名玩家').strip()
+    times = data.get('times')
+    avg_time = data.get('avgTime')
+    
+    if not username: username = '匿名玩家'
+    if not all([difficulty, times, avg_time]):
+        return jsonify({"error": "Missing data"}), 400
+
+    new_single_time = min(times)
+    new_avg_time = avg_time
+
+    rank = -1
+
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        cursor = conn.cursor()
+        
+        # 检查是否已有记录
+        cursor.execute("SELECT best_single_time, best_average_time FROM scores WHERE difficulty = ? AND username = ?", (difficulty, username))
+        existing_record = cursor.fetchone()
+
+        if existing_record:
+            # 如果存在，只有当新成绩更好时才更新
+            old_single, old_avg = existing_record
+            
+            # 如果之前的记录是空的，则新记录总比它好
+            if old_single is None or new_single_time < old_single:
+                cursor.execute("UPDATE scores SET best_single_time = ? WHERE difficulty = ? AND username = ?", (new_single_time, difficulty, username))
+            
+            if old_avg is None or new_avg_time < old_avg:
+                cursor.execute("UPDATE scores SET best_average_time = ? WHERE difficulty = ? AND username = ?", (new_avg_time, difficulty, username))
+
+        else:
+            # 如果不存在，直接插入
+            cursor.execute("INSERT INTO scores (difficulty, username, best_single_time, best_average_time) VALUES (?, ?, ?, ?)",
+                           (difficulty, username, new_single_time, new_avg_time))
+        
+        conn.commit()
+
+        # 查询并返回新成绩的排名
+        query_rank = f"""
+            SELECT rank FROM (
+                SELECT username, RANK() OVER (ORDER BY best_average_time ASC) as rank
+                FROM scores
+                WHERE difficulty = ? AND best_average_time IS NOT NULL
+            )
+            WHERE username = ?
+        """
+        cursor.execute(query_rank, (difficulty, username))
+        rank_row = cursor.fetchone()
+        if rank_row:
+            rank = rank_row[0]
+
+    return jsonify({"success": True, "rank": rank})
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-# 生产环境使用且对公网开放则改为：
-    app.run(debug=False, host='0.0.0.0')
+    init_db() # 启动时确保数据库和表已创建
+    app.run(debug=True)
