@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaderboardDisplay = document.getElementById('leaderboard-display');
 
     // --- 游戏状态变量 ---
-    let gameMode = null, boardState = null, solutionState = null, initialBoardState = null;
+    let gameMode = null, boardState = null, solutionState = null, initialBoardState = null, countdownInterval = null;
     let boardSize = { width: 0, height: 0 };
     let isAnimating = false, isDragging = false, isCustomizing = false, isCountingDown = false;
     let draggedTile = null, lastCustomShape = null, timerInterval = null;
@@ -235,24 +235,80 @@ document.addEventListener('DOMContentLoaded', () => {
         boardSize={width:boardState[0].length,height:boardState.length};canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;
         infoPanel.textContent='自定义谜题生成成功！';lastCustomShape=JSON.parse(JSON.stringify(shape));playAgainBtn.style.display='inline-block';
         drawBoard()}catch(e){console.error("Failed to fetch custom puzzle:",e);infoPanel.textContent=`加载失败: ${e.message}`}finally{isAnimating=!1}}
-    function runCountdown(dur){return new Promise(res=>{isCountingDown=!0;let rem=dur;const endC=()=>{if(!isCountingDown)return;isCountingDown=!1;
-        clearInterval(countdownInterval);canvas.removeEventListener('mousedown',endC);canvas.removeEventListener('touchstart',endC);
-        infoPanel.textContent="开始!";res()};canvas.addEventListener('mousedown',endC,{once:!0});canvas.addEventListener('touchstart',endC,{once:!0});
-        infoPanel.textContent=`准备... ${rem}`;countdownInterval=setInterval(()=>{rem--;if(rem>0)infoPanel.textContent=`准备... ${rem}`;else endC()},1e3)})}
-    async function fetchNewPuzzle(w=5,h=5){infoPanel.textContent='正在生成新谜题...';isAnimating=!0;hideCustomizationUI();playAgainBtn.style.display='none';
+    function runCountdown(dur) {
+        // 修正：在函数开始时，立即清除任何可能存在的上一个倒计时。
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        return new Promise(res => {
+            isCountingDown = !0;
+            let rem = dur;
+            const endC = () => {
+                if (!isCountingDown) return;
+                isCountingDown = !1;
+                // 清除自身定时器时，最好将变量置空，是个好习惯
+                clearInterval(countdownInterval);
+                countdownInterval = null; 
+                canvas.removeEventListener('mousedown', endC);
+                canvas.removeEventListener('touchstart', endC);
+                infoPanel.textContent = "开始!";
+                res()
+            };
+            canvas.addEventListener('mousedown', endC, { once: !0 });
+            canvas.addEventListener('touchstart', endC, { once: !0 });
+            infoPanel.textContent = `准备... ${rem}`;
+            countdownInterval = setInterval(() => {
+                rem--;
+                if (rem > 0) infoPanel.textContent = `准备... ${rem}`;
+                else endC()
+            }, 1e3)
+        })
+    }
+            async function fetchNewPuzzle(w=5,h=5){infoPanel.textContent='正在生成新谜题...';isAnimating=!0;hideCustomizationUI();playAgainBtn.style.display='none';
         lastCustomShape=null;resetPuzzleState();try{const r=await fetch(`/api/new_puzzle?width=${w}&height=${h}`);if(!r.ok)throw new Error(`Server error: ${r.statusText}`);
         const d=await r.json();boardState=d.shuffled_grid;solutionState=d.solution_grid;initialBoardState=JSON.parse(JSON.stringify(d.shuffled_grid));
         boardSize={width:boardState[0].length,height:boardState.length};canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;
         infoPanel.textContent='拖动石板，完成连线！';drawBoard()}catch(e){console.error("Failed to fetch puzzle:",e);infoPanel.textContent=`加载失败: ${e.message}`}
         finally{isAnimating=!1}}
-    async function startTimedChallenge(w,h){isAnimating=!0;infoPanel.textContent='准备中，正在生成谜题...';resetPuzzleState();try{const r=await fetch('/api/challenge/start',
-        {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({width:w,height:h})});if(!r.ok)throw new Error(`服务器错误: ${r.statusText}`);
-        const d=await r.json();if(!d.puzzles||d.puzzles.length<3)throw new Error('未能从服务器获取到完整的谜题。');challengeState={puzzles:d.puzzles,
-        currentPuzzleIndex:0,times:[],totalPausedTime:0,difficulty:`${w}x${h}`};const dur={'3':3,'4':4,'5':5,'7':7}[w]||3;loadTimedPuzzle(0,!1);
-        isAnimating=!1;await runCountdown(dur);challengeState.startTime=Date.now();challengeState.puzzleStartTime=Date.now();if(timerInterval)clearInterval(timerInterval);
-        timerInterval=setInterval(()=>{const e=(Date.now()-challengeState.startTime)-challengeState.totalPausedTime;timerEl.textContent=formatTime(e)},41)}
-        catch(e){console.error("无法开始计时挑战:",e);infoPanel.textContent=`开始挑战失败: ${e.message}`;isAnimating=!1}}
-    function showResults(){const[t1,t2,t3]=challengeState.times,avg=(t1+t2+t3)/3;challengeState.avgTime=avg;
+    async function startTimedChallenge(w, h) {
+        if (timerInterval) clearInterval(timerInterval); // <-- 修正: 立即清除任何正在运行的旧计时器
+        isAnimating = !0;
+        infoPanel.textContent = '准备中，正在生成谜题...';
+        resetPuzzleState();
+        try {
+            const r = await fetch('/api/challenge/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ width: w, height: h })
+            });
+            if (!r.ok) throw new Error(`服务器错误: ${r.statusText}`);
+            const d = await r.json();
+            if (!d.puzzles || d.puzzles.length < 3) throw new Error('未能从服务器获取到完整的谜题。');
+            challengeState = {
+                puzzles: d.puzzles,
+                currentPuzzleIndex: 0,
+                times: [],
+                totalPausedTime: 0,
+                difficulty: `${w}x${h}`
+            };
+            const dur = { '3': 3, '4': 4, '5': 5, '7': 7 }[w] || 3;
+            loadTimedPuzzle(0, !1);
+            isAnimating = !1;
+            await runCountdown(dur);
+            challengeState.startTime = Date.now();
+            challengeState.puzzleStartTime = Date.now();
+            // <-- 原本在这里的清除代码已被移动
+            timerInterval = setInterval(() => {
+                const e = (Date.now() - challengeState.startTime) - challengeState.totalPausedTime;
+                timerEl.textContent = formatTime(e)
+            }, 41)
+        }
+        catch (e) {
+            console.error("无法开始计时挑战:", e);
+            infoPanel.textContent = `开始挑战失败: ${e.message}`;
+            isAnimating = !1
+        }
+    }
+        function showResults(){const[t1,t2,t3]=challengeState.times,avg=(t1+t2+t3)/3;challengeState.avgTime=avg;
         document.getElementById('time-1').textContent=formatTime(t1);document.getElementById('time-2').textContent=formatTime(t2);
         document.getElementById('time-3').textContent=formatTime(t3);document.getElementById('time-avg').textContent=formatTime(avg);
         document.getElementById('time-total').textContent=formatTime(challengeState.totalTime);
