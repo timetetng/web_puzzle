@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let dragStartPos = { x: 0, y: 0 }, originalGridPos = { r: 0, c: 0 };
     let customShape = [], challengeState = {};
     let activeAnimations = [], animationFrameId = null, puzzleJustSolved = false;
-    
+    let isConfettiRunning = false; 
     function interpolateColor(c1, c2, f) {
         const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
         const r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
@@ -111,6 +111,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let dc=vs.diamondColors&&vs.diamondColors[`${r},${c}`];if(!dc)dc=cs.some(s=>s)?COLORS.LINE_CONNECTED:COLORS.LINE_DISCONNECTED;
         ctx.beginPath();ctx.moveTo(cx,cy-ds/2);ctx.lineTo(cx+ds/2,cy);ctx.lineTo(cx,cy+ds/2);ctx.lineTo(cx-ds/2,cy);ctx.closePath();ctx.fillStyle=dc;ctx.fill();}
     function drawBoard(){if(!boardState){ctx.clearRect(0,0,canvas.width,canvas.height);return}if(animationFrameId)return;drawBoardBase();drawAllTiles({});}
+    function drawCustomizationGrid() {
+        if (!customShape || customShape.length === 0) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const h = boardSize.height;
+        const w = boardSize.width;
+        for (let r = 0; r < h; r++) {
+            for (let c = 0; c < w; c++) {
+                // 根据 customShape 数组决定格子的颜色
+                ctx.fillStyle = customShape[r][c] === 'x' ? COLORS.ACTIVE_BG : COLORS.INACTIVE_BG;
+                ctx.fillRect(c * CELL_SIZE, r * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                ctx.strokeStyle = COLORS.GRID;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(c * CELL_SIZE, r * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            }
+        }
+    }
+
     function drawCompletionDiffuse(p){const w=canvas.width,h=canvas.height;if(w<=0||h<=0)return;const cx=w/2,cy=h/2;
         const mr=Math.sqrt(w*w+h*h)*ANIMATION_COMPLETION_RADIUS_END_FACTOR,cr=ANIMATION_COMPLETION_RADIUS_START+p*(mr-ANIMATION_COMPLETION_RADIUS_START);
     const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(0, cr)),sc=COLORS.COMPLETION_HIGHLIGHT+'ff',ec=COLORS.COMPLETION_HIGHLIGHT+'00';        g.addColorStop(0,sc);g.addColorStop(Math.min(.5,p*2),sc);g.addColorStop(1,ec);
@@ -132,11 +149,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if(t[3]===1){const k=`${r},${c-1}`;if(!v.has(k)){v.add(k);q.push({r,c:c-1})}}}
         return v.size===a.length}
 
-    function checkPuzzleCompletion(){if(!boardState||puzzleJustSolved)return!1;if(isPuzzleSolved(boardState)){puzzleJustSolved=!0;
-        const onC=()=>{if(gameMode==='timed'&&!isCountingDown)onTimedPuzzleSolved();else if(gameMode==='classic'){infoPanel.textContent='恭喜你，解谜成功！';confetti({particleCount:150,spread:90,origin:{y:.6}})}};
-        activeAnimations.push({type:'completion-diffuse',startTime:performance.now(),duration:ANIMATION_COMPLETION_DURATION,onComplete:onC});
-        startAnimationLoop();return!0}return!1}
-    
+    function checkPuzzleCompletion() {
+        if (!boardState || puzzleJustSolved) return !1;
+        if (isPuzzleSolved(boardState)) {
+            puzzleJustSolved = !0;
+            const onC = () => {
+                if (gameMode === 'timed' && !isCountingDown) {
+                    onTimedPuzzleSolved();
+                } else if (gameMode === 'classic') {
+                    infoPanel.textContent = '恭喜你，解谜成功！';
+                    
+                    // --- 核心修改开始 ---
+                    // 设置标志位，表示烟花正在播放
+                    isConfettiRunning = true; 
+                    
+                    // 调用 confetti 并附加一个 .then()
+                    // 当动画自然结束时，将标志位重置
+                    confetti({ particleCount: 150, spread: 90, origin: { y: .6 } })
+                        .then(() => {
+                            isConfettiRunning = false;
+                        });
+                    // --- 核心修改结束 ---
+                }
+            };
+            activeAnimations.push({ type: 'completion-diffuse', startTime: performance.now(), duration: ANIMATION_COMPLETION_DURATION, onComplete: onC });
+            startAnimationLoop();
+            return !0
+        }
+        return !1
+    }
     function onTimedPuzzleSolved(){if(timerInterval)clearInterval(timerInterval);const timeTaken=Date.now()-challengeState.puzzleStartTime;
         challengeState.times.push(timeTaken);challengeState.currentPuzzleIndex++;
         setTimeout(()=>{try{if(challengeState.currentPuzzleIndex<3){loadTimedPuzzle(challengeState.currentPuzzleIndex,!1);
@@ -153,9 +194,41 @@ document.addEventListener('DOMContentLoaded', () => {
         initialBoardState=JSON.parse(JSON.stringify(p.shuffled_grid));boardSize={width:boardState[0].length,height:boardState.length};
         canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;
         puzzleCounterEl.textContent=`第 ${i+1} / 3 关`;drawBoard();if(sT)challengeState.puzzleStartTime=Date.now()}
-    
+    function handleCustomizationClick(event) {
+        if (!isCustomizing) return;
+        const pos = getEventPos(event);
+        const c = Math.floor(pos.x / CELL_SIZE);
+        const r = Math.floor(pos.y / CELL_SIZE);
+
+        if (customShape[r] && typeof customShape[r][c] !== 'undefined') {
+            // 切换格子的状态 (' ' <-> 'x')
+            customShape[r][c] = customShape[r][c] === 'x' ? ' ' : 'x';
+            // 重新绘制自定义网格以显示更改
+            drawCustomizationGrid();
+        }
+    }
+        
     function handleInteractionStart(event) {
-        if (isAnimating || isCountingDown || isCustomizing || !boardState || isDragging) return;
+        // 新增逻辑：如果烟花正在播放，则这次点击用于跳过烟花并解锁界面。
+        if (isConfettiRunning) {
+            if (typeof confetti === 'function') confetti.reset(); // 停止所有烟花
+            isConfettiRunning = false; // 立即重置标志位
+            return; // 终止函数的其余部分
+        }
+        
+        // 之前的跳过光圈动画的逻辑可以移除，因为它不是问题的关键
+        // if (puzzleJustSolved) { ... } 
+
+        // --- 以下是你原有的逻辑，保持不变 ---
+        if (isAnimating || isCountingDown || isDragging) return;
+
+        if (isCustomizing) {
+            handleCustomizationClick(event);
+            return;
+        }
+
+        if (!boardState) return;
+
         if (event.type === 'touchstart') event.preventDefault();
         const pos = getEventPos(event);
         const c = Math.floor(pos.x / CELL_SIZE);
@@ -167,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
             dragStartPos = pos;
         }
     }
-
     function handleDragMove(event) {
         if (isDragging) {
             if (event.type === 'touchmove') event.preventDefault();
