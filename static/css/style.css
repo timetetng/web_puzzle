@@ -52,25 +52,13 @@ h1 {
 }
 
 /* --- 游戏容器与计时器 --- */
-/* --- 游戏容器与计时器 --- */
 .game-container {
     background-color: #3a3a3a;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
     padding: 10px;
-
-    /* ▼▼▼ 核心修复方案 ▼▼▼ */
-    /* 1. 使用 table 布局模型 */
-    display: table;
-    
-    /* 2. 设置一个极小宽度，强制表格布局去收缩包裹内部的“硬”内容（canvas），
-          而不是“软”内容（文本）。canvas的实际宽度会把它撑开到正确尺寸。*/
-    width: 1px; 
-    
-    /* 3. 因为 display:table 不再是 flex 的直接子元素，
-          可能需要用 margin:auto 来确保其在父容器中水平居中。*/
-    margin-left: auto;
-    margin-right: auto;
+    /* 恢复为简单的块级元素，让外层 Flexbox 来居中它 */
+    display: block; 
 }
 
 canvas {
