@@ -45,20 +45,36 @@ h1 {
 /* --- 游戏主区域垂直布局 --- */
 #game-area {
     display: flex;
-    flex-direction: column; /* 核心：改为垂直方向 */
-    align-items: center;   /* 核心：所有子元素水平居中 */
-    gap: 25px;             /* 设置子元素之间的垂直间距 */
+    flex-direction: column; 
+    align-items: center;   
+    gap: 20px;             
     width: 100%;
 }
 
-/* --- 游戏容器与计时器 --- */
+/* ▼▼▼【核心修改】▼▼▼ */
+/* --- 计时器样式 --- */
+#timed-info {
+    color: #f0f0f0;
+    font-size: 1.4em;
+    font-family: 'monospace';
+    text-align: center;
+    padding: 12px 20px;
+    background-color: #3a3a3a;
+    border-radius: 5px;
+    /* 移除了 width 和 max-width 属性，让宽度由内容自动撑开 */
+    box-sizing: border-box;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+/* ▲▲▲【核心修改】结束 ▲▲▲ */
+
+
+/* --- 游戏容器样式 --- */
 .game-container {
     background-color: #3a3a3a;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
     padding: 10px;
-    /* 恢复为简单的块级元素，让外层 Flexbox 来居中它 */
-    display: block; 
+    display: inline-block;
 }
 
 canvas {
@@ -67,22 +83,33 @@ canvas {
     border-radius: 4px;
 }
 
-#timed-info {
-    color: #f0f0f0;
-    font-size: 1.5em;
-    font-family: 'monospace';
-    text-align: center;
-    padding: 10px;
-    background-color: rgba(0,0,0,0.3);
-    border-radius: 5px 5px 0 0;
-
-    /* ▼▼▼ 新增代码 ▼▼▼ */
-    /* 让信息栏宽度强制等于其父容器的宽度 */
+/* --- 控制按钮布局 --- */
+.controls {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    gap: 15px;              
     width: 100%;
-    /* 确保 padding 不会额外增加宽度，而是包含在100%宽度内 */
-    box-sizing: border-box; 
-    /* ▲▲▲ 新增代码 ▲▲▲ */
+    max-width: 560px;       
+    box-sizing: border-box;
 }
+
+.controls .difficulty-select,
+.controls .ingame-actions {
+    display: flex;          
+    flex-wrap: wrap;        
+    justify-content: center;
+    align-items: center;    
+    gap: 10px;              
+    width: 100%;
+}
+
+.controls .difficulty-select span {
+    font-weight: bold;
+    color: #d0d0d0;
+    flex-shrink: 0; 
+}
+
 /* --- 信息面板与退出按钮 --- */
 .info {
     width: 100%;
@@ -95,6 +122,7 @@ canvas {
     text-align: center;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
+    min-height: 2.5em; 
 }
 
 .exit-btn {
@@ -118,6 +146,7 @@ button {
     transition: background-color 0.2s ease, transform 0.1s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     min-width: 100px;
+    flex-shrink: 0; 
 }
 button:hover {
     background-color: #68a09d;
@@ -193,9 +222,17 @@ button:active {
         font-size: 2em;
         margin-bottom: 20px;
     }
-    button {
-        flex-grow: 1;
-        min-width: unset;
+    #timed-info {
+        font-size: 1.2em;
+    }
+    .controls .difficulty-select, .controls .ingame-actions {
+        flex-direction: column;
+        align-items: center; 
+    }
+    .controls .difficulty-select span {
+        margin-bottom: 5px; 
+        margin-right: 0;
+        text-align: center;
     }
     .footer {
         flex-direction: column;
@@ -213,7 +250,7 @@ button:active {
 }
 
 .user-rank-info b {
-    color: #65e065; /* 使用连接线的颜色来高亮排名 */
+    color: #65e065; 
 }
 
 /* 优化前三名奖牌的显示效果 */

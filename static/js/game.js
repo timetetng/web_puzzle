@@ -9,15 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
         DIAMOND_LIT: '#c0ffc0', LINE_LIT: '#a0fffa', COMPLETION_HIGHLIGHT: '#65e065'
     };
     const ANIMATION_LIT_DURATION = 600;
-    const ANIMATION_COMPLETION_DURATION = 800;
+    const ANIMATION_COMPLETION_DURATION = 700;
     const ANIMATION_COMPLETION_RADIUS_START = 0;
     const ANIMATION_COMPLETION_RADIUS_END_FACTOR = 1.2;
 
     // --- DOM 元素引用 ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    // 新增：获取游戏容器元素的引用
-    const gameContainer = document.querySelector('.game-container');
     const modeSelection = document.getElementById('mode-selection');
     const classicModeBtn = document.getElementById('classic-mode-btn');
     const timedModeBtn = document.getElementById('timed-mode-btn');
@@ -65,13 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let customShape = [], challengeState = {};
     let activeAnimations = [], animationFrameId = null, puzzleJustSolved = false;
     
-    // --- 新增辅助函数：用于同步更新Canvas和其容器的尺寸 ---
-    function updateCanvasAndContainerSize(width, height) {
-        canvas.width = width;
-        canvas.height = height;
-        gameContainer.style.width = width + 'px'; // 核心修复：同步容器宽度以修复抖动和布局问题
-    }
-
     function interpolateColor(c1, c2, f) {
         const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
         const r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
@@ -84,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         drawBoardBase();
         const vs = calculateVisualState(timestamp);
         drawAllTiles(vs);
+        // V-- 主要修改在下面这一行，为p的计算增加了 Math.max(0, ...) 来确保其不会为负数 --V
         activeAnimations.forEach(a => { if (a.type === 'completion-diffuse') { const p = Math.max(0, Math.min((timestamp - a.startTime) / a.duration, 1)); if (p < 1) drawCompletionDiffuse(p); } });
         activeAnimations = activeAnimations.filter(a => { const p = (timestamp - a.startTime) / a.duration; if (p >= 1 && a.onComplete) a.onComplete(); return p < 1; });
         if (activeAnimations.length > 0) { animationFrameId = requestAnimationFrame(gameLoop); } else { animationFrameId = null; drawBoard(); }
@@ -121,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawBoard(){if(!boardState){ctx.clearRect(0,0,canvas.width,canvas.height);return}if(animationFrameId)return;drawBoardBase();drawAllTiles({});}
     function drawCompletionDiffuse(p){const w=canvas.width,h=canvas.height;if(w<=0||h<=0)return;const cx=w/2,cy=h/2;
         const mr=Math.sqrt(w*w+h*h)*ANIMATION_COMPLETION_RADIUS_END_FACTOR,cr=ANIMATION_COMPLETION_RADIUS_START+p*(mr-ANIMATION_COMPLETION_RADIUS_START);
-    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(0, cr)),sc=COLORS.COMPLETION_HIGHLIGHT+'ff',ec=COLORS.COMPLETION_HIGHLIGHT+'00';       g.addColorStop(0,sc);g.addColorStop(Math.min(.5,p*2),sc);g.addColorStop(1,ec);
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(0, cr)),sc=COLORS.COMPLETION_HIGHLIGHT+'ff',ec=COLORS.COMPLETION_HIGHLIGHT+'00';        g.addColorStop(0,sc);g.addColorStop(Math.min(.5,p*2),sc);g.addColorStop(1,ec);
         ctx.save();ctx.globalAlpha=1-p;ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.restore();}
     
     function isPuzzleSolved(grid){if(!grid||grid.length===0)return!0;const h=grid.length,w=grid[0].length,a=[],s=[];
@@ -152,23 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if(!nextPuzzle||!nextPuzzle.shuffled_grid||!nextPuzzle.shuffled_grid[0])throw new Error("加载下一关谜题数据失败。");
             const nextWidth=nextPuzzle.shuffled_grid[0].length,countdownDuration={'3':3,'4':4,'5':5,'7':7}[nextWidth]||3,pauseStartTime=Date.now();
             runCountdown(countdownDuration).then(()=>{challengeState.totalPausedTime+=Date.now()-pauseStartTime;challengeState.puzzleStartTime=Date.now();
-                // 修改：为计时器增加防御性检查，杜绝NaN问题
-                timerInterval = setInterval(() => {
-                    if (!challengeState || typeof challengeState.startTime === 'undefined') {
-                        clearInterval(timerInterval);
-                        return;
-                    }
-                    const elapsedTime = (Date.now() - challengeState.startTime) - challengeState.totalPausedTime;
-                    timerEl.textContent = formatTime(elapsedTime);
-                }, 41);
-            })}
+                timerInterval=setInterval(()=>{const elapsedTime=(Date.now()-challengeState.startTime)-challengeState.totalPausedTime;
+                timerEl.textContent=formatTime(elapsedTime)},41)})}
             else{challengeState.totalTime=(Date.now()-challengeState.startTime)-challengeState.totalPausedTime;showResults()}}
             catch(error){console.error("在 onTimedPuzzleSolved 的延迟执行中发生错误:",error);infoPanel.textContent="加载下一关时出错，请刷新页面重试。"}},50)}
     
     function loadTimedPuzzle(i,sT=!0){resetPuzzleState();const p=challengeState.puzzles[i];boardState=p.shuffled_grid;solutionState=p.solution_grid;
         initialBoardState=JSON.parse(JSON.stringify(p.shuffled_grid));boardSize={width:boardState[0].length,height:boardState.length};
-        // 修改：使用新的辅助函数来设置尺寸
-        updateCanvasAndContainerSize(boardSize.width * CELL_SIZE, boardSize.height * CELL_SIZE);
+        canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;
         puzzleCounterEl.textContent=`第 ${i+1} / 3 关`;drawBoard();if(sT)challengeState.puzzleStartTime=Date.now()}
     
     function handleInteractionStart(event) {
@@ -219,39 +202,37 @@ document.addEventListener('DOMContentLoaded', () => {
         boardState=null;drawBoard()}
     function resetPuzzleState(){if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null}activeAnimations=[];puzzleJustSolved=!1}
     function setupGameUIForMode(mode) {
-            gameMode = mode;
-            modeSelection.style.display = 'none';
-            gameArea.style.display = 'flex';
-            const iT = mode === 'timed';
-            classicControls.style.display = iT ? 'none' : 'flex';
-            timedControls.style.display = iT ? 'flex' : 'none';
-            timedInfo.style.display = iT ? 'block' : 'none';
-            hideCustomizationUI();
-            playAgainBtn.style.display = 'none';
-            resetPuzzleState();
+            gameMode = mode;
+            modeSelection.style.display = 'none';
+            gameArea.style.display = 'flex';
+            const iT = mode === 'timed';
+            classicControls.style.display = iT ? 'none' : 'flex';
+            timedControls.style.display = iT ? 'flex' : 'none';
+            timedInfo.style.display = iT ? 'block' : 'none';
+            hideCustomizationUI();
+            playAgainBtn.style.display = 'none';
+            resetPuzzleState();
 
-            if (mode === 'classic') {
-                infoPanel.textContent = '经典模式：正在为您生成默认3x3谜题...';
-                fetchNewPuzzle(3, 3);
-            } else { // 'timed' 模式
-                infoPanel.textContent = '计时挑战：请选择难度，准备倒计时！';
-                boardState = null;
-                drawBoard();
-                
-                // --- 核心修复逻辑：重置计时器和挑战状态 ---
-                if (timerInterval) clearInterval(timerInterval); // 清除任何残留的计时器
-                challengeState = {}; // 清空上一次挑战的所有数据
-                timerEl.textContent = formatTime(0); // 将计时器显示重置为 00:00.000
-                puzzleCounterEl.textContent = ''; // 清空关卡计数器
-            }
-        }
-    async function fetchCustomPuzzle(shape){infoPanel.textContent='正在根据自定义形状生成谜题...';isAnimating=!0;hideCustomizationUI();
+            if (mode === 'classic') {
+                infoPanel.textContent = '经典模式：正在为您生成默认3x3谜题...';
+                fetchNewPuzzle(3, 3);
+            } else { // 'timed' 模式
+                infoPanel.textContent = '计时挑战：请选择难度，准备倒计时！';
+                boardState = null;
+                drawBoard();
+                
+                // --- 核心修复逻辑：重置计时器和挑战状态 ---
+                if (timerInterval) clearInterval(timerInterval); // 清除任何残留的计时器
+                challengeState = {}; // 清空上一次挑战的所有数据
+                timerEl.textContent = formatTime(0); // 将计时器显示重置为 00:00.000
+                puzzleCounterEl.textContent = ''; // 清空关卡计数器
+            }
+        }
+        async function fetchCustomPuzzle(shape){infoPanel.textContent='正在根据自定义形状生成谜题...';isAnimating=!0;hideCustomizationUI();
         playAgainBtn.style.display='none';resetPuzzleState();try{const r=await fetch('/api/new_custom_puzzle',{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({shape})});if(!r.ok){const eD=await r.json();throw new Error(eD.error||`Server error: ${r.statusText}`)}
         const d=await r.json();boardState=d.shuffled_grid;solutionState=d.solution_grid;initialBoardState=JSON.parse(JSON.stringify(d.shuffled_grid));
-        boardSize={width:boardState[0].length,height:boardState.length};
-        // 修改：使用新的辅助函数来设置尺寸
-        updateCanvasAndContainerSize(boardSize.width * CELL_SIZE, boardSize.height * CELL_SIZE);
+        boardSize={width:boardState[0].length,height:boardState.length};canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;
         infoPanel.textContent='自定义谜题生成成功！';lastCustomShape=JSON.parse(JSON.stringify(shape));playAgainBtn.style.display='inline-block';
         drawBoard()}catch(e){console.error("Failed to fetch custom puzzle:",e);infoPanel.textContent=`加载失败: ${e.message}`}finally{isAnimating=!1}}
     function runCountdown(dur){return new Promise(res=>{isCountingDown=!0;let rem=dur;const endC=()=>{if(!isCountingDown)return;isCountingDown=!1;
@@ -261,9 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchNewPuzzle(w=5,h=5){infoPanel.textContent='正在生成新谜题...';isAnimating=!0;hideCustomizationUI();playAgainBtn.style.display='none';
         lastCustomShape=null;resetPuzzleState();try{const r=await fetch(`/api/new_puzzle?width=${w}&height=${h}`);if(!r.ok)throw new Error(`Server error: ${r.statusText}`);
         const d=await r.json();boardState=d.shuffled_grid;solutionState=d.solution_grid;initialBoardState=JSON.parse(JSON.stringify(d.shuffled_grid));
-        boardSize={width:boardState[0].length,height:boardState.length};
-        // 修改：使用新的辅助函数来设置尺寸
-        updateCanvasAndContainerSize(boardSize.width * CELL_SIZE, boardSize.height * CELL_SIZE);
+        boardSize={width:boardState[0].length,height:boardState.length};canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;
         infoPanel.textContent='拖动石板，完成连线！';drawBoard()}catch(e){console.error("Failed to fetch puzzle:",e);infoPanel.textContent=`加载失败: ${e.message}`}
         finally{isAnimating=!1}}
     async function startTimedChallenge(w,h){isAnimating=!0;infoPanel.textContent='准备中，正在生成谜题...';resetPuzzleState();try{const r=await fetch('/api/challenge/start',
@@ -271,16 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const d=await r.json();if(!d.puzzles||d.puzzles.length<3)throw new Error('未能从服务器获取到完整的谜题。');challengeState={puzzles:d.puzzles,
         currentPuzzleIndex:0,times:[],totalPausedTime:0,difficulty:`${w}x${h}`};const dur={'3':3,'4':4,'5':5,'7':7}[w]||3;loadTimedPuzzle(0,!1);
         isAnimating=!1;await runCountdown(dur);challengeState.startTime=Date.now();challengeState.puzzleStartTime=Date.now();if(timerInterval)clearInterval(timerInterval);
-        // 修改：为计时器增加防御性检查，杜绝NaN问题
-        timerInterval = setInterval(() => {
-            if (!challengeState || typeof challengeState.startTime === 'undefined') {
-                clearInterval(timerInterval);
-                return;
-            }
-            const e = (Date.now() - challengeState.startTime) - challengeState.totalPausedTime;
-            timerEl.textContent = formatTime(e);
-        }, 41);
-    }
+        timerInterval=setInterval(()=>{const e=(Date.now()-challengeState.startTime)-challengeState.totalPausedTime;timerEl.textContent=formatTime(e)},41)}
         catch(e){console.error("无法开始计时挑战:",e);infoPanel.textContent=`开始挑战失败: ${e.message}`;isAnimating=!1}}
     function showResults(){const[t1,t2,t3]=challengeState.times,avg=(t1+t2+t3)/3;challengeState.avgTime=avg;
         document.getElementById('time-1').textContent=formatTime(t1);document.getElementById('time-2').textContent=formatTime(t2);
@@ -319,27 +289,31 @@ document.addEventListener('DOMContentLoaded', () => {
         isAnimating=!0;resetPuzzleState();const fd=new FormData();fd.append('puzzle_image',f);try{const r=await fetch('/api/upload_image',{method:'POST',body:fd});
         if(!r.ok){const eD=await r.json();throw new Error(eD.error||'识别失败')}const d=await r.json();boardState=d.shuffled_grid;solutionState=d.solution_grid;
         initialBoardState=JSON.parse(JSON.stringify(d.shuffled_grid));boardSize={width:boardState[0].length,height:boardState.length};
-        // 修改：使用新的辅助函数来设置尺寸
-        updateCanvasAndContainerSize(boardSize.width * CELL_SIZE, boardSize.height * CELL_SIZE);
-        lastCustomShape=null;playAgainBtn.style.display='none';
+        canvas.width=boardSize.width*CELL_SIZE;canvas.height=boardSize.height*CELL_SIZE;lastCustomShape=null;playAgainBtn.style.display='none';
         infoPanel.textContent='图片识别成功，开始游戏！';drawBoard()}catch(e){console.error("Image upload failed:",e);infoPanel.textContent=`错误: ${e.message}`}
         finally{isAnimating=!1;imageUploader.value=''}});
     customBtn.addEventListener('click',()=>{if(isAnimating)return;resetPuzzleState();boardState=null;drawBoard();customizationUI.style.display='flex';
         infoPanel.textContent='请设置棋盘尺寸并创建画布。'});
     createGridBtn.addEventListener('click',()=>{const w=parseInt(customWidthInput.value,10),h=parseInt(customHeightInput.value,10);
         if(isNaN(w)||isNaN(h)||w<2||h<2||w>15||h>15){infoPanel.textContent='错误：宽高必须在 2 到 15 之间。';return}isCustomizing=!0;
-        customShape=Array(h).fill(null).map(()=>Array(w).fill(' '));boardSize={width:w,height:h};
-        // 修改：使用新的辅助函数来设置尺寸
-        updateCanvasAndContainerSize(boardSize.width * CELL_SIZE, boardSize.height * CELL_SIZE);
-        drawCustomizationGrid();customizationUI.querySelector('.custom-inputs').style.display='none';
+        customShape=Array(h).fill(null).map(()=>Array(w).fill(' '));boardSize={width:w,height:h};canvas.width=boardSize.width*CELL_SIZE;
+        canvas.height=boardSize.height*CELL_SIZE;drawCustomizationGrid();customizationUI.querySelector('.custom-inputs').style.display='none';
         customActions.style.display='flex';infoPanel.textContent='请在画布上点击，设计谜题的形状。'});
     generateCustomBtn.addEventListener('click',()=>{if(isAnimating)return;const hT=customShape.some(r=>r.includes('x'));
         if(!hT){infoPanel.textContent='错误：自定义形状中至少要包含一个石板。';return}fetchCustomPuzzle(customShape)});
     cancelCustomBtn.addEventListener('click',()=>{if(isAnimating)return;hideCustomizationUI();fetchNewPuzzle(3,3)});
     playAgainBtn.addEventListener('click',()=>{if(isAnimating||!lastCustomShape)return;fetchCustomPuzzle(lastCustomShape)});
-    resultsPlayAgainBtn.addEventListener('click',()=>{resultsModal.style.display='none';const[w,h]=challengeState.difficulty.split('x').map(Number);
-        startTimedChallenge(w,h)});
-    resultsExitBtn.addEventListener('click',()=>{resultsModal.style.display='none';setupGameUIForMode('timed')});
+    resultsPlayAgainBtn.addEventListener('click', () => {
+        confetti.reset(); // <-- 在这里强制停止烟花
+        resultsModal.style.display = 'none';
+        const [w, h] = challengeState.difficulty.split('x').map(Number);
+        startTimedChallenge(w, h);
+    });
+    resultsExitBtn.addEventListener('click', () => {
+        confetti.reset(); // <-- 在这里也强制停止烟花
+        resultsModal.style.display = 'none';
+        setupGameUIForMode('timed');
+    });
     submitScoreBtn.addEventListener('click',async()=>{const u=usernameInput.value.trim()||'匿名玩家';localStorage.setItem('puzzleUsername',u);
         submitScoreBtn.disabled=!0;submitScoreBtn.textContent='提交中...';try{const r=await fetch('/api/leaderboard/submit',{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify({difficulty:challengeState.difficulty,username:u,times:challengeState.times,
