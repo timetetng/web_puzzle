@@ -51,7 +51,6 @@ h1 {
     width: 100%;
 }
 
-/* ▼▼▼【核心修改】▼▼▼ */
 /* --- 计时器样式 --- */
 #timed-info {
     color: #f0f0f0;
@@ -61,12 +60,9 @@ h1 {
     padding: 12px 20px;
     background-color: #3a3a3a;
     border-radius: 5px;
-    /* 移除了 width 和 max-width 属性，让宽度由内容自动撑开 */
     box-sizing: border-box;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
-/* ▲▲▲【核心修改】结束 ▲▲▲ */
-
 
 /* --- 游戏容器样式 --- */
 .game-container {
@@ -158,60 +154,9 @@ button:active {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 自定义UI样式 --- */
-#customization-ui {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #3a3a3a;
-    border-radius: 8px;
-    text-align: center;
-    width: 100%;
-    max-width: 560px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-#customization-ui h3 { margin-top: 0; margin-bottom: 5px; color: #f0f0f0; }
-#customization-ui .custom-inputs, #customization-ui .custom-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
-#customization-ui label { font-weight: bold; }
-#customization-ui input[type="number"] { width: 60px; padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #282828; color: #e0e0e0; text-align: center; font-size: 1em; }
-#customization-ui .custom-actions p { width: 100%; margin: 0 0 5px 0; color: #c0c0c0; font-size: 0.9em; }
-#customization-ui .custom-actions { flex-direction: column; }
-#generateCustomBtn { background-color: #4CAF50; }
-#generateCustomBtn:hover { background-color: #5cb85c; }
-#cancelCustomBtn { background-color: #d9534f; }
-#cancelCustomBtn:hover { background-color: #c9302c; }
-
-/* --- 弹窗 (Modal) --- */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-.modal-content { background-color: #3a3a3a; padding: 25px; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); width: 90%; max-width: 500px; text-align: center; position: relative; }
-.modal-content.large { max-width: 600px; }
-.close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
-.close-btn:hover { color: #fff; }
-#results-details hr { border-color: #555; }
-#results-details p { margin: 10px 0; font-size: 1.1em; }
-.results-submission { margin: 20px 0; display: flex; gap: 10px; }
-#username-input { flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #555; background-color: #282828; color: #e0e0e0; font-size: 1em; }
-.results-actions { display: flex; justify-content: center; gap: 15px; }
-
-/* --- 排行榜样式 --- */
-.leaderboard-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-.leaderboard-controls select { padding: 8px; font-size: 1em; background-color: #588e8b; color: white; border: none; border-radius: 5px; }
-#leaderboard-display ol { list-style: none; padding: 0; text-align: left; }
-#leaderboard-display li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #444; font-size: 1.1em; }
-#leaderboard-display li:nth-child(1) { font-weight: bold; color: #ffd700; }
-#leaderboard-display li:nth-child(2) { color: #c0c0c0; }
-#leaderboard-display li:nth-child(3) { color: #cd7f32; }
-#leaderboard-display li span:last-child { font-family: 'monospace'; }
-
-/* --- 页脚 --- */
-.footer { width: 100%; margin-top: auto; padding-top: 20px; border-top: 1px solid #444; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px 30px; }
-.footer a { color: #a0a0a0; font-size: 0.9em; text-decoration: none; display: flex; align-items: center; padding: 5px 10px; border-radius: 5px; transition: color 0.3s ease, background-color 0.3s ease; }
-.footer a:hover { color: #e0e0e0; background-color: rgba(255, 255, 255, 0.05); }
-.footer i { margin-right: 8px; font-size: 1.2em; color: #c0c0c0; transition: color 0.3s ease; }
-.footer a:hover i { color: #588e8b; }
-
+/* --- 自定义UI样式等... (后面省略未变动的代码) --- */
+/* (The rest of the CSS is the same as the last version) */
+#customization-ui{margin-top:20px;padding:20px;background-color:#3a3a3a;border-radius:8px;text-align:center;width:100%;max-width:560px;box-shadow:0 4px 8px rgba(0,0,0,0.3);display:flex;flex-direction:column;gap:15px}#customization-ui h3{margin-top:0;margin-bottom:5px;color:#f0f0f0}#customization-ui .custom-inputs,#customization-ui .custom-actions{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}#customization-ui label{font-weight:bold}#customization-ui input[type="number"]{width:60px;padding:8px;border-radius:4px;border:1px solid #555;background-color:#282828;color:#e0e0e0;text-align:center;font-size:1em}#customization-ui .custom-actions p{width:100%;margin:0 0 5px 0;color:#c0c0c0;font-size:0.9em}#customization-ui .custom-actions{flex-direction:column}#generateCustomBtn{background-color:#4CAF50}#generateCustomBtn:hover{background-color:#5cb85c}#cancelCustomBtn{background-color:#d9534f}#cancelCustomBtn:hover{background-color:#c9302c}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.6);justify-content:center;align-items:center}.modal-content{background-color:#3a3a3a;padding:25px;border-radius:8px;box-shadow:0 5px 25px rgba(0,0,0,0.5);width:90%;max-width:500px;text-align:center;position:relative}.modal-content.large{max-width:600px}.close-btn{color:#aaa;position:absolute;top:10px;right:20px;font-size:28px;font-weight:bold;cursor:pointer}.close-btn:hover{color:#fff}#results-details hr{border-color:#555}#results-details p{margin:10px 0;font-size:1.1em}.results-submission{margin:20px 0;display:flex;gap:10px}#username-input{flex-grow:1;padding:10px;border-radius:5px;border:1px solid #555;background-color:#282828;color:#e0e0e0;font-size:1em}.results-actions{display:flex;justify-content:center;gap:15px}.leaderboard-controls{display:flex;justify-content:center;gap:15px;margin-bottom:20px}.leaderboard-controls select{padding:8px;font-size:1em;background-color:#588e8b;color:white;border:none;border-radius:5px}#leaderboard-display ol{list-style:none;padding:0;text-align:left}#leaderboard-display li{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #444;font-size:1.1em}#leaderboard-display li:nth-child(1){font-weight:bold;color:#ffd700}#leaderboard-display li:nth-child(2){color:#c0c0c0}#leaderboard-display li:nth-child(3){color:#cd7f32}#leaderboard-display li span:last-child{font-family:'monospace'}.footer{width:100%;margin-top:auto;padding-top:20px;border-top:1px solid #444;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:15px 30px}.footer a{color:#a0a0a0;font-size:0.9em;text-decoration:none;display:flex;align-items:center;padding:5px 10px;border-radius:5px;transition:color 0.3s ease,background-color 0.3s ease}.footer a:hover{color:#e0e0e0;background-color:rgba(255,255,255,0.05)}.footer i{margin-right:8px;font-size:1.2em;color:#c0c0c0;transition:color 0.3s ease}.footer a:hover i{color:#588e8b}
 
 /* --- 响应式调整 --- */
 @media (max-width: 600px) {
@@ -225,36 +170,51 @@ button:active {
     #timed-info {
         font-size: 1.2em;
     }
-    .controls .difficulty-select, .controls .ingame-actions {
-        flex-direction: column;
-        align-items: center; 
+
+    /* ▼▼▼【核心修改区域】▼▼▼ */
+
+    /* 1. 让 7x7 等大尺寸棋盘能自适应缩放，防止溢出 */
+    .game-container {
+        max-width: 100%;
+        height: auto;
+        box-sizing: border-box; /* 确保 padding 不会撑破容器 */
     }
+    /* 让 canvas 填充缩放后的容器 */
+    .game-container canvas {
+        width: 100%;
+        height: auto;
+    }
+
+    /* 2. 将单列按钮改为双列布局 */
+    /* 恢复 flex 的默认换行行为，不再强制单列 */
+    .controls .difficulty-select, 
+    .controls .ingame-actions {
+        /* 之前强制单列的 flex-direction: column 已被移除 */
+        justify-content: space-around; /* 让按钮均匀分布 */
+    }
+
+    /* 让 "新游戏:" 或 "选择挑战:" 等标题独占一行并居中 */
     .controls .difficulty-select span {
-        margin-bottom: 5px; 
-        margin-right: 0;
+        flex-basis: 100%; 
         text-align: center;
+        margin-bottom: 5px;
+        margin-right: 0;
     }
+    
+    /* 设置每个按钮的宽度，以实现双列效果 */
+    .controls button {
+        flex-grow: 1;      /* 允许按钮在空间内伸展 */
+        flex-basis: 40%;   /* 核心：让每个按钮占据约40%的宽度，一行就能放下两个 */
+        min-width: 120px;  /* 保证按钮不会被压得过小 */
+    }
+    
+    /* ▲▲▲【核心修改区域】结束 ▲▲▲ */
+
     .footer {
         flex-direction: column;
         gap: 15px;
         border-top: none;
     }
 }
-/* --- 排行榜个人排名显示样式 --- */
-.user-rank-info {
-    border-top: 1px solid #555;
-    margin-top: 20px;
-    padding-top: 15px;
-    font-size: 1.1em;
-    color: #e0e0e0;
-}
-
-.user-rank-info b {
-    color: #65e065; 
-}
-
-/* 优化前三名奖牌的显示效果 */
-#leaderboard-display li span:first-child {
-    display: flex;
-    align-items: center;
-}
+/* --- 排行榜个人排名显示样式等... (后面省略未变动的代码) --- */
+.user-rank-info{border-top:1px solid #555;margin-top:20px;padding-top:15px;font-size:1.1em;color:#e0e0e0}.user-rank-info b{color:#65e065}#leaderboard-display li span:first-child{display:flex;align-items:center}
