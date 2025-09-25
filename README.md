@@ -13,6 +13,13 @@
 
 ### **安装与运行**
 
+首先在终端中使用 git clone 克隆本仓库并进入根目录：
+
+```bash
+git clone https://github.com/timetetng/web_puzzle.git 
+cd web_puzzle
+```
+
 我们提供两种运行方式：通过 Docker 部署 (推荐) 和本地环境部署。
 
 ### **方式一：Docker 快速部署 (推荐)**
