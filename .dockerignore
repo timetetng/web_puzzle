@@ -1,11 +1,18 @@
+# Git
+.git
+.gitignore
+
 # Python-generated files
 __pycache__/
 *.py[oc]
 build/
 dist/
-img/
 wheels/
 *.egg-info
 
 # Virtual environments
 .venv
+
+# Docker
+Dockerfile
+.dockerignore
