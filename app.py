@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import os
 import uuid
 import json
-import sqlite3 # 导入sqlite3
+import sqlite3
 
 # Import game logic modules
 import puzzle_generator
@@ -13,7 +13,7 @@ from game_logic import Board, Tile
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
-DATABASE_FILE = 'leaderboard.db' # 使用数据库文件
+DATABASE_FILE = 'leaderboard.db'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -21,7 +21,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def init_db():
     with sqlite3.connect(DATABASE_FILE) as conn:
         cursor = conn.cursor()
-        # 创建一个表来存储每个用户在每个难度下的最好成绩
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS scores (
                 difficulty TEXT NOT NULL,
@@ -32,20 +31,28 @@ def init_db():
             )
         ''')
         conn.commit()
-# --- 工具函数 ---
+
+# --- 【核心修正】在应用加载时就调用数据库初始化 ---
+init_db()
+
+# (The rest of your code remains exactly the same)
+# ... (all your functions like get_leaderboard, calculate_swaps, all @app.route decorators) ...
+
+# (保留 calculate_swaps 和 serialize_grid 函数)
 def get_leaderboard():
     """读取排行榜数据"""
-    if not os.path.exists(LEADERBOARD_FILE):
+    # This function is no longer used but we keep it for reference
+    if not os.path.exists('leaderboard.json'):
         return {}
-    with open(LEADERBOARD_FILE, 'r', encoding='utf-8') as f:
+    with open('leaderboard.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def save_leaderboard(data):
     """保存排行榜数据"""
-    with open(LEADERBOARD_FILE, 'w', encoding='utf-8') as f:
+    # This function is no longer used
+    with open('leaderboard.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
 
-# (保留 calculate_swaps 和 serialize_grid 函数)
 def calculate_swaps(initial_grid, final_grid):
     """Calculates the sequence of swaps to transform initial_grid to final_grid."""
     rows, cols = len(initial_grid), len(initial_grid[0])
@@ -294,5 +301,4 @@ def submit_score():
 
 
 if __name__ == '__main__':
-    init_db() # 启动时确保数据库和表已创建
     app.run(debug=True,host='0.0.0.0')
