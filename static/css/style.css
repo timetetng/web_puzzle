@@ -51,6 +51,8 @@ h1 {
     width: 100%;
 }
 
+/* --- 游戏容器与计时器 --- */
+/* --- 游戏容器与计时器 --- */
 .game-container {
     background-color: #3a3a3a;
     border-radius: 8px;
@@ -69,6 +71,29 @@ h1 {
           可能需要用 margin:auto 来确保其在父容器中水平居中。*/
     margin-left: auto;
     margin-right: auto;
+}
+
+canvas {
+    display: block;
+    background-color: #323232;
+    border-radius: 4px;
+}
+
+#timed-info {
+    color: #f0f0f0;
+    font-size: 1.5em;
+    font-family: 'monospace';
+    text-align: center;
+    padding: 10px;
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 5px 5px 0 0;
+
+    /* ▼▼▼ 新增代码 ▼▼▼ */
+    /* 让信息栏宽度强制等于其父容器的宽度 */
+    width: 100%;
+    /* 确保 padding 不会额外增加宽度，而是包含在100%宽度内 */
+    box-sizing: border-box; 
+    /* ▲▲▲ 新增代码 ▲▲▲ */
 }
 /* --- 信息面板与退出按钮 --- */
 .info {
