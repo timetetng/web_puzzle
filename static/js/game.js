@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     createGridBtn.addEventListener('click', () => {
         const w = parseInt(customWidthInput.value, 10), h = parseInt(customHeightInput.value, 10);
-        if (isNaN(w) || isNaN(h) || w < 2 || h < 2 || w > 7 || h > 7) { infoPanel.textContent = '错误：宽高必须在 2 到 17 之间。'; return } isCustomizing = !0;
+        if (isNaN(w) || isNaN(h) || w < 2 || h < 2 || w > 7 || h > 7) { infoPanel.textContent = '错误：宽高必须在 2 到 7 之间。'; return } isCustomizing = !0;
         customShape = Array(h).fill(null).map(() => Array(w).fill(' ')); boardSize = { width: w, height: h }; canvas.width = boardSize.width * CELL_SIZE;
         canvas.height = boardSize.height * CELL_SIZE; drawCustomizationGrid(); customizationUI.querySelector('.custom-inputs').style.display = 'none';
         customActions.style.display = 'flex'; infoPanel.textContent = '请在画布上点击，设计谜题的形状。'
