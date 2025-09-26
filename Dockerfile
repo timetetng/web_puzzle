@@ -9,6 +9,5 @@ RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
 COPY pyproject.toml ./
 RUN pip install gunicorn && \
     pip install .
-COPY . .
 EXPOSE 5000
 CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:5000", "app:app"]
