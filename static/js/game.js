@@ -247,11 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isCustomizing) {
             handleCustomizationClick(event);
-            return;
+            return; // 处理完自定义点击后，必须立即返回
         }
 
         if (!boardState) return;
-
         if (event.type === 'touchstart') event.preventDefault();
         const pos = getEventPos(event);
         const c = Math.floor(pos.x / CELL_SIZE);
