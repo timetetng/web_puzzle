@@ -22,34 +22,33 @@ h1 {
 /* --- 模式选择 --- */
 #mode-selection {
     text-align: center;
-    background-color: #3a3a3a;
-    padding: 30px;
+    background-color: #3a3a3a;          
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); 
+    padding: 40px 25px 40px 25px;
     border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    width: 90%;
+    max-width: 400px;
+    box-sizing: border-box;
 }
 
 #mode-selection h2 {
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 25px; 
 }
 
 #mode-selection .mode-btn,
 #mode-selection #leaderboard-btn {
     font-size: 1.2em;
     padding: 15px 30px;
-    margin: 0 0 15px 0; /* 在每个按钮的底部添加 15px 的外边距 */
-    width: 70%;
-    max-width: 280px;
+    margin: 0 0 15px 0;
+    width: 70%;     
+    max-width: 320px; 
+    box-sizing: border-box;
 }
 
-#mode-selection #leaderboard-btn {
-    margin-bottom: 30;
-}
 
 
 #game-area {
