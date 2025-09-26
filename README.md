@@ -33,15 +33,17 @@ cd web_puzzle
 #### **步骤**
 
 1.  **构建 Docker 镜像**:
-    在项目根目录下，打开终端并运行以下命令：
+    在**项目根目录下**，打开终端并运行以下命令：
     ```bash
     docker build -t web-puzzle .
     ```
 
 2.  **启动 Docker 容器**:
-    镜像构建成功后，运行以下命令来启动应用：
+    镜像构建成功后，在**项目根目录下**运行以下命令来启动应用：
     ```bash
-    docker run -d -p 5000:5000 --name web-puzzle-container web-puzzle
+    docker run -d -p 5000:5000 \
+    -v $(pwd):/app \
+    --name web-puzzle-container web-puzzle
     ```
     * `-d`: 后台运行容器。
     * `-p 5000:5000`: 将您电脑的5000端口映射到容器的5000端口。
