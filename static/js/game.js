@@ -236,32 +236,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function handleInteractionStart(event) {
-        if (isConfettiRunning) {
-            if (typeof confetti === 'function') confetti.reset();
-            isConfettiRunning = false;
-            return;
-        }
+    function handleInteractionStart(event) {
+        if (isConfettiRunning) {
+            if (typeof confetti === 'function') confetti.reset();
+            isConfettiRunning = false;
+            return;
+        }
 
-        if (isAnimating || isCountingDown || isDragging) return;
+        if (isAnimating || isCountingDown || isDragging) return;
 
-        if (isCustomizing) {
-            handleCustomizationClick(event);
-            return; // 处理完自定义点击后，必须立即返回
-        }
+        if (isCustomizing) {
+            if (event.type === 'touchstart') {
+                event.preventDefault();
+            }
+            handleCustomizationClick(event);
+            return; // 处理完自定义点击后，必须立即返回
+        }
 
-        if (!boardState) return;
-        if (event.type === 'touchstart') event.preventDefault();
-        const pos = getEventPos(event);
-        const c = Math.floor(pos.x / CELL_SIZE);
-        const r = Math.floor(pos.y / CELL_SIZE);
-        if (boardState[r] && boardState[r][c]) {
-            isDragging = true;
-            draggedTile = boardState[r][c];
-            originalGridPos = { r, c };
-            dragStartPos = pos;
-        }
-    }
+        if (!boardState) return;
+        if (event.type === 'touchstart') event.preventDefault();
+        const pos = getEventPos(event);
+        const c = Math.floor(pos.x / CELL_SIZE);
+        const r = Math.floor(pos.y / CELL_SIZE);
+        if (boardState[r] && boardState[r][c]) {
+            isDragging = true;
+            draggedTile = boardState[r][c];
+            originalGridPos = { r, c };
+            dragStartPos = pos;
+        }
+    }
+
     function handleDragMove(event) {
         if (isDragging) {
             if (event.type === 'touchmove') event.preventDefault();
